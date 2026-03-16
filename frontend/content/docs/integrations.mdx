@@ -1,0 +1,82 @@
+---
+title: Integrations
+description: Connecting third-party services to your AI agents
+---
+
+my-company-llm supports integrations with social media platforms and AI services, allowing your agents to take real-world actions.
+
+## Available Integrations
+
+### Social Media
+
+| Platform | Tool Name | Capabilities |
+|----------|-----------|-------------|
+| **Twitter/X** | `twitter` | Post tweets, create threads |
+| **LinkedIn** | `linkedin` | Publish posts and articles |
+| **Instagram** | `instagram` | Share image content |
+
+### AI Services
+
+| Service | Purpose |
+|---------|---------|
+| **OpenAI** | GPT-4o for lead agents, GPT-4o-mini for routing, embeddings |
+| **Anthropic** | Claude Sonnet for creative agents |
+
+## Configuring Credentials
+
+### Global Credentials
+
+Global credentials are shared across all agents. Configure them in **Settings > Integrations**:
+
+1. Navigate to the **Settings** page
+2. Click the **Integrations** tab
+3. Click on the integration card you want to configure
+4. Enter the required API keys and tokens
+5. Click **Save**
+
+### Per-Agent Credentials
+
+You can also set credentials specific to individual agents. Agent-specific credentials override global ones:
+
+1. In **Settings > Integrations**, use the agent dropdown at the top
+2. Select the agent you want to configure
+3. Enter credentials — these will only apply to that agent
+
+### Via the API
+
+```bash
+curl -X POST http://localhost:8000/api/credentials \
+  -H "Content-Type: application/json" \
+  -d '{
+    "integration": "twitter",
+    "credentials": [
+      {"key": "api_key", "value": "your-api-key"},
+      {"key": "api_secret", "value": "your-api-secret"},
+      {"key": "access_token", "value": "your-access-token"},
+      {"key": "access_secret", "value": "your-access-secret"}
+    ],
+    "agent_id": null
+  }'
+```
+
+## Knowledge Base (RAG)
+
+All agents have access to the `search_knowledge` tool, which searches:
+
+- **Company knowledge base** — documents uploaded through the file upload feature
+- **Agent-specific memory** — conversation history and documents specific to an agent
+
+### Uploading Documents
+
+Upload files through the sidebar's **Upload Files** button or the API:
+
+```bash
+curl -X POST http://localhost:8000/api/files/upload \
+  -F "file=@document.pdf" \
+  -F "chunk_size=800" \
+  -F "chunk_overlap=200"
+```
+
+Supported formats include PDF, DOCX, XLSX, TXT, and images (with OCR).
+
+Files are automatically chunked and embedded using OpenAI's `text-embedding-3-small` model, then stored in ChromaDB for vector search.

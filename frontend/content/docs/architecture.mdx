@@ -1,0 +1,102 @@
+---
+title: Architecture
+description: System design, data flow, and technology stack of my-company-llm
+---
+
+my-company-llm is a full-stack application with a clear separation between the frontend, backend, and AI orchestration layers.
+
+## System Overview
+
+```
+┌─────────────────────────────────────────────┐
+│                 Frontend                     │
+│       Next.js 16 + React 19 + shadcn/ui     │
+│  ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+│  │ Chat UI  │ │ Task Mgmt│ │ Office Map   │ │
+│  └────┬─────┘ └────┬─────┘ └──────┬───────┘ │
+│       │             │              │         │
+│       └─────────────┼──────────────┘         │
+│                     │                        │
+│              WebSocket + REST                │
+└─────────────────────┼───────────────────────┘
+                      │
+┌─────────────────────┼───────────────────────┐
+│                 Backend                      │
+│              FastAPI + Uvicorn               │
+│  ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+│  │  Router  │ │  Runner  │ │   Memory     │ │
+│  │ (LLM)   │ │(LangGraph)│ │ (ChromaDB)  │ │
+│  └──────────┘ └──────────┘ └──────────────┘ │
+│  ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+│  │ REST API │ │  Factory │ │   Tools      │ │
+│  │ (CRUD)   │ │(LLM Gen) │ │(Social/RAG) │ │
+│  └──────────┘ └──────────┘ └──────────────┘ │
+│                     │                        │
+│              SQLite + ChromaDB               │
+└──────────────────────────────────────────────┘
+```
+
+## Key Components
+
+### Frontend (`frontend/`)
+
+- **Next.js App Router** — file-based routing with server and client components
+- **shadcn/ui** — accessible, customizable component library built on Radix UI
+- **Framer Motion** — animations for the office map and UI transitions
+- **WebSocket client** — real-time bi-directional communication with the backend
+
+### Backend (`backend/`)
+
+- **FastAPI** — async Python web framework for REST and WebSocket endpoints
+- **SQLAlchemy (async)** — ORM with aiosqlite for SQLite database access
+- **LangGraph** — agent execution loop with tool calling and state management
+- **LiteLLM** — unified interface to OpenAI, Anthropic, and other LLM providers
+- **ChromaDB** — vector database for agent memory and RAG
+
+## Data Flow
+
+### CEO Message Routing
+
+1. User sends a message via the WebSocket chat interface
+2. The **Router** (powered by GPT-4o-mini) analyzes the message intent
+3. The router selects the appropriate department and agent
+4. The **Runner** executes the agent using LangGraph
+5. The agent may call tools (RAG search, social posting, etc.)
+6. Responses stream back to the frontend via WebSocket events
+
+### Agent Memory
+
+Each agent has two memory layers:
+
+- **Personal memory** — a ChromaDB collection scoped to the agent, storing conversation history and uploaded documents
+- **Company knowledge base** — a shared ChromaDB collection accessible to all agents via the `search_knowledge` tool
+
+### LLM Configuration
+
+| Purpose | Model | Provider |
+|---------|-------|----------|
+| Lead agents | GPT-4o | OpenAI |
+| Creative agents | Claude Sonnet | Anthropic |
+| Message routing | GPT-4o-mini | OpenAI |
+| Agent generation | GPT-4o | OpenAI |
+| Embeddings | text-embedding-3-small | OpenAI |
+
+## Project Structure
+
+```
+my-company-llm/
+├── backend/
+│   ├── main.py              # App entry, CORS, routers
+│   ├── config.py            # Pydantic settings
+│   ├── api/                 # REST + WebSocket endpoints
+│   ├── engine/              # Agent runner, router, memory
+│   ├── models/              # Pydantic schemas
+│   ├── tools/               # Social + RAG tools
+│   └── db/                  # SQLAlchemy models + DB session
+├── frontend/
+│   ├── src/app/             # Next.js pages
+│   ├── src/components/      # React components
+│   └── src/lib/             # API client, WebSocket, utils
+├── data/                    # SQLite DB + ChromaDB storage
+└── .env.example             # Required environment variables
+```

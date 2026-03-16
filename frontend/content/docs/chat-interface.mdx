@@ -1,0 +1,69 @@
+---
+title: Chat Interface
+description: Directing your AI workforce through the CEO conversational interface
+---
+
+The Chat Interface is the primary way to interact with your AI workforce. It provides a real-time, conversational experience where you act as the CEO giving directives to your agents.
+
+## How It Works
+
+### Message Routing
+
+When you send a message, the system uses an LLM router (GPT-4o-mini) to determine the best agent to handle your request. The router considers:
+
+- The content and intent of your message
+- Available departments and their descriptions
+- Agent roles and specializations
+- Conversation context
+
+### Targeting Modes
+
+You can control where your messages go using the **Agent Selector** at the top of the chat panel:
+
+| Mode | Behavior |
+|------|----------|
+| **Auto-route** | The LLM router automatically selects the best agent |
+| **Department** | Messages go to the lead agent of a specific department |
+| **Direct agent** | Messages go directly to a specific agent |
+
+## WebSocket Events
+
+The chat uses WebSocket for real-time bidirectional communication. Here are the event types you'll see:
+
+### Outgoing (Client to Server)
+
+| Action | Description |
+|--------|-------------|
+| `message` | Send a chat message |
+| `add_task` | Create a new task |
+| `remove_task` | Delete an existing task |
+| `update_task_status` | Change a task's status |
+
+### Incoming (Server to Client)
+
+| Event Type | Description |
+|------------|-------------|
+| `ceo_message` | Echo of your sent message |
+| `routing` | Shows which agent was selected by the router |
+| `agent_start` | Agent has begun processing |
+| `agent_message` | Response text from the agent |
+| `tool_call` | Agent is invoking a tool |
+| `tool_result` | Result from a tool invocation |
+| `task_created` | A new task was created |
+| `task_updated` | An existing task was modified |
+| `task_removed` | A task was deleted |
+| `error` | An error occurred during processing |
+
+## Connection Status
+
+The chat panel shows a live connection indicator:
+
+- **Live** (green) — WebSocket is connected and ready
+- **Offline** (red) — WebSocket is disconnected; the client will attempt to reconnect automatically
+
+## Tips for Effective Communication
+
+- **Be specific** — Clear directives produce better results. Instead of "do some marketing," try "draft three tweet ideas promoting our new feature."
+- **Use auto-routing** — Let the router pick the right agent unless you need a specific one.
+- **Review tool calls** — Watch for tool call events to understand what actions agents are taking.
+- **Check task creation** — Monitor the task panel to see tasks being created from your conversations.

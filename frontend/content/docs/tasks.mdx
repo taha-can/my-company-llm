@@ -1,0 +1,76 @@
+---
+title: Task Management
+description: Creating, assigning, and tracking tasks across your AI workforce
+---
+
+my-company-llm includes a built-in task management system that lets you create, assign, and track work across your AI agents.
+
+## Task Lifecycle
+
+Tasks flow through the following statuses:
+
+1. **Pending** — task has been created but not started
+2. **In Progress** — an agent is actively working on the task
+3. **Awaiting Approval** — agent has completed the task and it needs CEO review
+4. **Completed** — task has been approved and closed
+5. **Rejected** — task was rejected during approval and may need rework
+
+## Creating Tasks
+
+### Via Chat
+
+When chatting with agents, tasks can be created automatically based on your directives. The system detects actionable items in your messages and creates tasks for the appropriate agent.
+
+You can also explicitly request task creation:
+
+> "Create a task for the marketing team to draft a press release for our product launch next week."
+
+### Via the API
+
+```bash
+curl -X POST http://localhost:8000/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Draft press release",
+    "description": "Write a press release for the product launch",
+    "agent_id": "<agent-id>",
+    "board": "Marketing",
+    "priority": "high"
+  }'
+```
+
+## Task Properties
+
+| Property | Description |
+|----------|-------------|
+| `title` | Short description of the task |
+| `description` | Detailed requirements |
+| `agent_id` | ID of the assigned agent |
+| `board` | Grouping board (usually department name) |
+| `status` | Current status |
+| `priority` | Priority level |
+| `created_at` | When the task was created |
+
+## Approval Workflow
+
+When an agent completes a task, it moves to **Awaiting Approval**. The CEO (you) can then:
+
+- **Approve** — marks the task as completed
+- **Reject** — sends it back with feedback for rework
+
+```bash
+curl -X POST http://localhost:8000/api/tasks/<task-id>/approve \
+  -H "Content-Type: application/json" \
+  -d '{"action": "approve"}'
+```
+
+## Viewing Tasks
+
+The **Tasks** page provides a filterable view of all tasks with tabs for:
+
+- **All** — every task in the system
+- **In Progress** — actively being worked on
+- **Pending Approval** — ready for your review
+- **Completed** — finished tasks
+
+Tasks are also visible in the **Command Center** side panel, grouped by the currently selected agent or department.

@@ -1,0 +1,49 @@
+---
+title: Departments
+description: Organizing your AI workforce into departments
+---
+
+Departments are the top-level organizational units in my-company-llm. They group related agents together and enable intelligent message routing.
+
+## Creating Departments
+
+Departments can be created through the API:
+
+```bash
+curl -X POST http://localhost:8000/api/departments \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Marketing",
+    "description": "Handles brand, content, and social media"
+  }'
+```
+
+They are also auto-created when you assign an agent to a new department name.
+
+## Department Structure
+
+Each department can contain:
+
+- **One lead agent** — the primary point of contact for the department
+- **Multiple worker agents** — specialists that report to the lead
+
+When the CEO chat router identifies a message for a department, it routes to the lead agent. The lead can then delegate subtasks to workers.
+
+## Department Properties
+
+| Property | Description |
+|----------|-------------|
+| `name` | Department name (e.g., "Engineering", "Marketing") |
+| `description` | What the department handles |
+| `created_at` | When the department was created |
+
+## Best Practices
+
+- **Mirror your real org** — Create departments that match your actual organizational structure for intuitive management.
+- **Keep departments focused** — Each department should have a clear responsibility area so the router can accurately direct messages.
+- **Assign a lead** — Every department should have a lead agent to serve as the primary entry point.
+- **Specialize workers** — Give worker agents narrow, specific roles within the department for better task execution.
+
+## Office Map
+
+The **Office Map** page provides a visual representation of your departments. Each department appears as a room containing its agents, making it easy to see the overall structure of your AI workforce at a glance.

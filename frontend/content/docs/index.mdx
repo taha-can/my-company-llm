@@ -1,0 +1,36 @@
+---
+title: Introduction
+description: my-company-llm — a hierarchical AI agent workforce management platform
+---
+
+my-company-llm is an open-source platform for managing hierarchical AI agent workforces through a conversational CEO interface.
+
+## What is my-company-llm?
+
+my-company-llm lets you organize AI agents into departments, assign them tasks, and direct your entire AI workforce from a single chat interface — just like a CEO running a company.
+
+**Key capabilities:**
+
+- **Conversational command** — Chat naturally to direct agents. Messages are automatically routed to the right department and agent.
+- **Hierarchical organization** — Create departments with lead agents and worker agents, mirroring real organizational structures.
+- **Persistent memory** — Each agent has its own vector memory powered by ChromaDB, plus a shared company knowledge base.
+- **Task management** — Create, assign, and track tasks with built-in approval workflows.
+- **Social integrations** — Agents can post to Twitter/X, LinkedIn, and Instagram on your behalf.
+- **Office visualization** — See your AI workforce in an interactive office map.
+
+## Architecture at a Glance
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16, React 19, Tailwind CSS, shadcn/ui |
+| Backend | FastAPI, SQLAlchemy (async), SQLite |
+| AI Orchestration | LangGraph, LiteLLM |
+| LLMs | OpenAI GPT-4o, Anthropic Claude Sonnet |
+| Vector Memory | ChromaDB with OpenAI embeddings |
+| Real-time | WebSocket |
+
+## Next Steps
+
+- [Getting Started](/docs/getting-started) — Set up and run my-company-llm locally
+- [Architecture](/docs/architecture) — Understand the system design
+- [Agents](/docs/agents) — Learn how to create and manage AI agents

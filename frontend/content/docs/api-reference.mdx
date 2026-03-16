@@ -1,0 +1,346 @@
+---
+title: API Reference
+description: Complete REST API and WebSocket reference for my-company-llm
+---
+
+The my-company-llm backend exposes a REST API and WebSocket endpoint. The base URL is `http://localhost:8000`.
+
+## Health Check
+
+```
+GET /api/health
+```
+
+Returns the server status.
+
+---
+
+## Agents
+
+### List Agents (Hierarchical)
+
+```
+GET /api/agents
+```
+
+Returns agents organized by department with parent-child hierarchy.
+
+### List Agents (Flat)
+
+```
+GET /api/agents/flat
+```
+
+Returns a flat list of all agents.
+
+### Get Agent
+
+```
+GET /api/agents/{agent_id}
+```
+
+### Create Agent
+
+```
+POST /api/agents
+```
+
+**Body:**
+```json
+{
+  "name": "Agent Name",
+  "role": "Role Title",
+  "department": "Department Name",
+  "system_prompt": "Instructions for the agent",
+  "model": "gpt-4o",
+  "is_lead": false,
+  "parent_id": "optional-lead-id",
+  "tools": ["twitter", "linkedin"]
+}
+```
+
+### Update Agent
+
+```
+PUT /api/agents/{agent_id}
+```
+
+### Delete Agent
+
+```
+DELETE /api/agents/{agent_id}
+```
+
+### Generate Agent from Description
+
+```
+POST /api/agents/generate
+```
+
+Uses an LLM to generate a complete agent definition from a natural language description.
+
+**Body:**
+```json
+{
+  "description": "I need a social media manager who can write tweets and LinkedIn posts"
+}
+```
+
+---
+
+## Tasks
+
+### List Tasks
+
+```
+GET /api/tasks?status={status}&board={board}&limit={limit}
+```
+
+**Query Parameters:**
+- `status` — filter by status (`pending`, `in_progress`, `awaiting_approval`, `completed`)
+- `board` — filter by board name
+- `limit` — maximum number of results (default: 100)
+
+### List Boards
+
+```
+GET /api/tasks/boards
+```
+
+Returns all unique board names.
+
+### Get Task
+
+```
+GET /api/tasks/{task_id}
+```
+
+### Get Task Messages
+
+```
+GET /api/tasks/{task_id}/messages
+```
+
+Returns the conversation history for a task.
+
+### Create Task
+
+```
+POST /api/tasks
+```
+
+### Update Task
+
+```
+PUT /api/tasks/{task_id}
+```
+
+### Delete Task
+
+```
+DELETE /api/tasks/{task_id}
+```
+
+### List Tasks by Agent
+
+```
+GET /api/tasks/by-agent/{agent_id}
+```
+
+### Approve or Reject Task
+
+```
+POST /api/tasks/{task_id}/approve
+```
+
+**Body:**
+```json
+{
+  "action": "approve"
+}
+```
+
+Action can be `"approve"` or `"reject"`.
+
+---
+
+## Departments
+
+### List Departments
+
+```
+GET /api/departments
+```
+
+### Get Department
+
+```
+GET /api/departments/{department_id}
+```
+
+### Create Department
+
+```
+POST /api/departments
+```
+
+**Body:**
+```json
+{
+  "name": "Department Name",
+  "description": "What this department handles"
+}
+```
+
+### Update Department
+
+```
+PUT /api/departments/{department_id}
+```
+
+### Delete Department
+
+```
+DELETE /api/departments/{department_id}
+```
+
+---
+
+## Company
+
+### Get Company Settings
+
+```
+GET /api/company
+```
+
+### Save Company Settings
+
+```
+POST /api/company
+```
+
+**Body:**
+```json
+{
+  "company_name": "Your Company",
+  "company_description": "What you do",
+  "industry": "Technology",
+  "brand_voice": "Professional and friendly"
+}
+```
+
+---
+
+## Files
+
+### Upload File
+
+```
+POST /api/files/upload
+```
+
+**Content-Type:** `multipart/form-data`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `file` | File | The document to upload |
+| `agent_id` | string (optional) | Scope to a specific agent |
+| `chunk_size` | integer | Chunk size for splitting (default: 800) |
+| `chunk_overlap` | integer | Overlap between chunks (default: 200) |
+
+### Upload Files (Batch)
+
+```
+POST /api/files/upload/batch
+```
+
+Same parameters as single upload, but accepts multiple files.
+
+---
+
+## Credentials
+
+### List Integrations
+
+```
+GET /api/credentials/integrations?agent_id={agent_id}
+```
+
+Returns all available integrations with their configuration status.
+
+### Get Credentials
+
+```
+GET /api/credentials/{integration}?agent_id={agent_id}
+```
+
+### Save Credentials
+
+```
+POST /api/credentials
+```
+
+**Body:**
+```json
+{
+  "integration": "twitter",
+  "credentials": [
+    {"key": "api_key", "value": "value"},
+    {"key": "api_secret", "value": "value"}
+  ],
+  "agent_id": null
+}
+```
+
+### Delete Credentials
+
+```
+DELETE /api/credentials/{integration}?agent_id={agent_id}
+```
+
+---
+
+## WebSocket
+
+### Chat Endpoint
+
+```
+WebSocket ws://localhost:8000/ws/chat
+```
+
+#### Sending Messages
+
+```json
+{
+  "action": "message",
+  "content": "Your message here",
+  "agentId": "optional-agent-id",
+  "department": "optional-department"
+}
+```
+
+#### Other Actions
+
+```json
+{"action": "add_task", "title": "Task title", "description": "Details", "agent_id": "id"}
+{"action": "remove_task", "task_id": "id"}
+{"action": "update_task_status", "task_id": "id", "status": "completed"}
+```
+
+#### Event Types
+
+Events are received as JSON with a `type` field:
+
+| Type | Description |
+|------|-------------|
+| `ceo_message` | Echo of sent message |
+| `routing` | Agent selection result |
+| `agent_start` | Agent began processing |
+| `agent_message` | Agent response text |
+| `tool_call` | Agent invoked a tool |
+| `tool_result` | Tool execution result |
+| `task_created` | New task created |
+| `task_updated` | Task modified |
+| `task_removed` | Task deleted |
+| `error` | Error occurred |

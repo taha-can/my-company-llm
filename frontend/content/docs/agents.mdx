@@ -1,0 +1,87 @@
+---
+title: Agents
+description: Creating, managing, and configuring AI agents in my-company-llm
+---
+
+Agents are the core workforce units in my-company-llm. Each agent has a name, role, personality, and set of capabilities defined by its tools and model configuration.
+
+## Agent Hierarchy
+
+Agents are organized in a two-level hierarchy within departments:
+
+- **Lead Agents** — department heads that receive routed messages and can delegate to workers
+- **Worker Agents** — specialists that handle specific tasks under a lead agent
+
+A lead agent can have multiple worker agents. Worker agents always belong to a single lead.
+
+## Creating Agents
+
+### Via the Agent Creator Chat
+
+Navigate to **Create Agent** in the sidebar. The Agent Creator Chat lets you describe the agent you need in natural language:
+
+> "I need a social media manager who can write engaging Twitter posts and LinkedIn articles. They should have a casual but professional tone."
+
+The system uses GPT-4o to generate a complete agent definition including:
+
+- Name and role
+- System prompt and personality
+- Recommended model (GPT-4o, Claude Sonnet, etc.)
+- Tool assignments
+- Department placement
+
+### Via the API
+
+You can also create agents programmatically:
+
+```bash
+curl -X POST http://localhost:8000/api/agents \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Social Media Manager",
+    "role": "Social Media Specialist",
+    "department": "Marketing",
+    "system_prompt": "You are a social media expert...",
+    "model": "gpt-4o",
+    "is_lead": false,
+    "parent_id": "<lead-agent-id>",
+    "tools": ["twitter", "linkedin"]
+  }'
+```
+
+## Agent Configuration
+
+Each agent has the following properties:
+
+| Property | Description |
+|----------|-------------|
+| `name` | Display name of the agent |
+| `role` | Job title or functional role |
+| `department` | Department the agent belongs to |
+| `system_prompt` | Instructions that define the agent's behavior |
+| `model` | LLM model to use (e.g., `gpt-4o`, `claude-sonnet`) |
+| `is_lead` | Whether this agent is a department lead |
+| `parent_id` | ID of the lead agent (for worker agents) |
+| `tools` | List of tools the agent can use |
+| `status` | Current status: `idle`, `working`, `offline` |
+
+## Agent Tools
+
+Agents can be equipped with the following tools:
+
+- **search_knowledge** — Search the company knowledge base and agent memory using RAG
+- **twitter** — Post tweets and threads to Twitter/X
+- **linkedin** — Create LinkedIn posts and articles
+- **instagram** — Share content on Instagram
+
+Tools require credentials to be configured in **Settings > Integrations**.
+
+## Managing Agents
+
+### Viewing Agents
+
+The **Agents** page shows an interactive org chart of all agents organized by department. You can see each agent's role, status, and parent-child relationships.
+
+### Deleting Agents
+
+Agents can be deleted from the org chart. Deleting a lead agent will also remove all its worker agents.
